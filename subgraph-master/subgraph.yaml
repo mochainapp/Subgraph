@@ -1,0 +1,76 @@
+specVersion: 0.0.4
+repository: https://github.com/fuseio/fuse-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: HomeBridgeNativeToErc
+    network: mochain
+    source:
+      address: '0xd617774b9708F79187Dc7F03D3Bdce0a623F6988'
+      startBlock: 100
+      abi: HomeBridgeNativeToErc
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - RelayedMessageEvent
+        - SignedForUserRequestEvent
+        - CollectedSignaturesEvent
+        - AffirmationCompletedEvent
+      abis:
+        - name: HomeBridgeNativeToErc
+          file: ./abis/HomeBridgeNativeToErc.json
+      eventHandlers:
+        # - event: RelayedMessage(address,uint256,bytes32)
+        #   handler: handleRelayedMessage
+        - event: SignedForUserRequest(indexed address,bytes32)
+          handler: handleSignedForUserRequest
+        - event: UserRequestForSignature(address,uint256)
+          handler: handleUserRequestForSignature
+        - event: CollectedSignatures(address,bytes32,uint256)
+          handler: handleCollectedSignatures
+        - event: AffirmationCompleted(address,uint256,bytes32)
+          handler: handleAffirmationCompleted
+      file: ./src/mappings/bridge.ts
+  - kind: ethereum/contract
+    name: Consensus
+    network: mochain
+    source:
+      address: '0x4E8d3ad28E7F75F083Bffd645282B4e2a7a307cE'
+      startBlock: 100
+      abi: Consensus
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - InitiateChangeEvent
+      abis:
+        - name: Consensus
+          file: ./abis/Consensus.json
+      eventHandlers:
+        - event: InitiateChange(indexed bytes32,address[])
+          handler: handleInitiateChange
+      file: ./src/mappings/consensus.ts
+  - kind: ethereum/contract
+    name: BlockReward
+    network: mochain
+    source:
+      address: '0xD4C8788Fc018533915d353Cf9215adbaBe215337'
+      startBlock: 100
+      abi: BlockReward
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - RewardedOnCycleEvent
+      abis:
+        - name: BlockReward
+          file: ./abis/BlockReward.json
+      eventHandlers:
+        - event: RewardedOnCycle(uint256)
+          handler: handleRewardedOnCycle
+      file: ./src/mappings/blockReward.ts
